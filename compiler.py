@@ -10,10 +10,10 @@ def main():
     args = make_args()
     print(args)
     if args.i:
-        archive = open(args.filename).read()
+        archive = open(args.i).read()
         lexical_analyzer(archive, args.d)
     else:
-        lexical_analyzer("3 + 4\n kakkaka=10\n true || false\n #comentario", False)
+        lexical_analyzer("3 + 4\n kakkaka=10\n if(avestruz== 'teste') {} \ntrue || false\n #comentario", True)
 
 
 if __name__ == "__main__":
