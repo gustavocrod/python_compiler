@@ -1,9 +1,10 @@
 # python_compiler
-An compiler coded in python
+A compiler coded in python
 
 ### Execution
 
-##### Execution test (with string "3 + 4\n kakkaka=10\n if(avestruz== 'teste') {} \ntrue || false\n #comentario")
+##### Execution test 
+(with string "3 + 4\n kakkaka=10\n if(avestruz== 'teste') {} \ntrue || false\n #comentario")
 ```$ python3 compiler.py```
 
 ##### Show help
