@@ -1,5 +1,5 @@
 # python_compiler
-A compiler coded in python
+A generic language compiler coded in python
 
 ### Execution
 
