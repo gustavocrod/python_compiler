@@ -16,5 +16,6 @@ def main():
         lexical_analyzer("3 + 4\n kakkaka=10\n if(avestruz== 'teste') {} \ntrue || false\n #comentario", True)
 
 
+
 if __name__ == "__main__":
     main()
