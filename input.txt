@@ -1,0 +1,12 @@
+arbitro_de_video x = 10;
+arbitro_de_video y = 12;
+
+testa_po_pai (x > y){
+    toma_sua_gostosa("5 MAIOR QUE 6");
+}
+testa_de_novo (x < y){
+    toma_sua_gostosa("5 MENOR QUE 6");
+}
+num_deu{
+    toma_sua_gostosa("x = y");
+}

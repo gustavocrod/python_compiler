@@ -13,7 +13,7 @@ def main():
         archive = open(args.i).read()
         lexical_analyzer(archive, args.d)
     else:
-        lexical_analyzer("3 + 4\n kakkaka=10\n if(avestruz== 'teste') {} \ntrue || false\n #comentario", True)
+        lexical_analyzer('3 + 4\n kakkaka=10\n if(avestruz== "teste") {} \ntrue || false\n #comentario', True)
 
 
 
