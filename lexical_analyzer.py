@@ -83,8 +83,9 @@ t_ASSIGN = r'='
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
 
-    if t.value in reserved_worlds:# Check for reserved words
+    if t.value in reserved_worlds: # teste se o nome é uma palavra reservada
         t.type = reserved_worlds[t.value]
+
     if DEBUG:
         print(f"\n[DEBUG] Token: {t.value}")
     return t
