@@ -135,24 +135,23 @@ def t_COMMENT_MONOLINE(t):
     return t
     # No return value. Token discarded
 
+
 def t_ccode_comment(t):
     r'(/\*(.|\n)*?\*/)|(//.*)'
     pass
 
 
 def lexical_analyzer(data, debug=False):
-    """
-        Like main function
-    :param data: dados a serem tokenizados
-    :param debug: flag para ligar prints
-    :return:
-    """
     global DEBUG
+
     DEBUG = debug
     lexer = lex.lex()
     lexer.input(data)
-    while True:
-        tok = lexer.token()
-        if not tok:
-            break
-        print(tok)
+    if DEBUG:
+        while True:
+            tok = lexer.token()
+            if not tok:
+                break
+            print(tok)
+
+
