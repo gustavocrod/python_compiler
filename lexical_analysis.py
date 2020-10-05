@@ -64,15 +64,15 @@ class Lexer:
                 self.next()
             matched = False
             for key, value in TOKENS.items():
-                if re.match(value, self.curr_char):
+                if re.match(value, str(self.curr_char)):
                     matched = True
                     if key == 't_NUMBER':
                         # print(f"[NUMBER DETECTED] RE: {value} | value: {self.curr_char}")
                         tokens.append(self.make_number())
                     else:
-                        print(f"[OTHER VALUE DETECTED] RE: {value} | value: {self.curr_char}")
+                        #print(f"[OTHER VALUE DETECTED] RE: {value}\nvalue: {self.curr_char}")
                         tokens.append(Token(key.split('_')[1]))
-                    self.next()
+                        self.next()
             if not matched:
                 pos_start = self.pos.copy()
                 char = self.curr_char
@@ -87,15 +87,20 @@ class Lexer:
         num_str = ''
         dot_count = 0
 
-        while self.curr_char and (re.match(r'\d+', self.curr_char) or self.curr_char == '.'):
-            if self.curr_char == '.':
-                if dot_count == 1:
-                    break
-                dot_count += 1
-                num_str += '.'
+        while True:
+            if self.curr_char and (re.match(r'\d+', str(self.curr_char)) or self.curr_char == '.'):
+                #print(f"current char: {str(self.curr_char)}")
+                if self.curr_char == '.':
+                    if dot_count == 1:
+                        break
+                    dot_count += 1
+                    num_str += '.'
+                else:
+                    num_str += str(self.curr_char)
+                self.next()
+                #print(f"next char: {str(self.curr_char)}")
             else:
-                num_str += str(self.curr_char)
-            self.next()
+                break
 
         if dot_count == 0:
             return Token('INT', int(num_str))
