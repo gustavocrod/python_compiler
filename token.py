@@ -21,7 +21,7 @@ TOKENS = {
             't_SUMEQUALS': r'\+=',
             't_MINUSEQUALS': r'-=',
             't_TIMESEQUALS': r'\*=',
-            't_DIVIDEEQUALS':r'/=',
+            't_DIVIDEEQUALS': r'/=',
             't_MOD': r'%=',
             't_PLUS': r'\+',
             't_MINUS': r'-',
@@ -36,7 +36,7 @@ class Token:
     """
     Classe para definição de token
     """
-    def __init__(self, type_, value):
+    def __init__(self, type_, value=None):
         self.type = type_
         self.value = value
 

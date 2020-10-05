@@ -19,7 +19,7 @@ def main():
             input_text = input(">>> ")
             if input_text == 'exit':
                 exit()
-            lexer = Lexer(input_text)
+            lexer = Lexer('<stdin>', input_text)
             tokens, error = lexer.make_tokens()
             print(f"{tokens}")
             if error:
