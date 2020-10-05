@@ -1,4 +1,5 @@
 from token import TOKENS, Token
+from strings_with_arrows import string_with_arrows
 import re
 
 
@@ -10,7 +11,7 @@ class Position:
         self.file_name = file_name
         self.file_text = file_txt
 
-    def advance(self, curr_char):
+    def advance(self, curr_char=None):
         self.idx += 1
         self.col += 1
 
@@ -34,12 +35,19 @@ class Error:
         self.details = details
 
     def __str__(self):
-        return f"{self.error_name}: {self.details}\n File {self.pos_start.file_name}, line {self.pos_start.line + 1}"
+        string = f"{self.error_name}: {self.details}\n File {self.pos_start.file_name}, line {self.pos_start.line + 1}"
+        string += f"\n\n {string_with_arrows(self.pos_start.file_text, self.pos_start, self.pos_end)}"
+        return string
 
 
 class IllegalCharError(Error):
     def __init__(self, pos_start, pos_end, details):
-        super().__init__(pos_start, pos_end, 'Illegal Character error', details)
+        super().__init__(pos_start, pos_end, 'Não reconheço esse caractere aí não cara!', details)
+
+
+class InvalidSyntaxError(Error):
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, 'Sintáxe inválida', details)
 
 
 class Lexer:
@@ -59,6 +67,7 @@ class Lexer:
 
     def make_tokens(self):
         tokens = []
+
         while self.curr_char:
             if self.curr_char in ' \t':
                 self.next()
@@ -71,13 +80,14 @@ class Lexer:
                         tokens.append(self.make_number())
                     else:
                         #print(f"[OTHER VALUE DETECTED] RE: {value}\nvalue: {self.curr_char}")
-                        tokens.append(Token(key.split('_')[1]))
+                        tokens.append(Token(key.split('_')[1], pos_start=self.pos))     # para remover o t_
                         self.next()
             if not matched:
                 pos_start = self.pos.copy()
                 char = self.curr_char
                 self.next()
                 return [], IllegalCharError(pos_start, self.pos, f"'{char}'")
+        tokens.append(Token('EOF', pos_start=self.pos))
         return tokens, None
 
     def make_number(self):
@@ -86,6 +96,7 @@ class Lexer:
         """
         num_str = ''
         dot_count = 0
+        pos_start = self.pos.copy()
 
         while True:
             if self.curr_char and (re.match(r'\d+', str(self.curr_char)) or self.curr_char == '.'):
@@ -103,6 +114,6 @@ class Lexer:
                 break
 
         if dot_count == 0:
-            return Token('INT', int(num_str))
+            return Token('INT', int(num_str), pos_start, self.pos)
         else:
-            return Token('FLOAT', float(num_str))
+            return Token('FLOAT', float(num_str), pos_start, self.pos)

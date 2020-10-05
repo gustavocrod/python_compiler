@@ -26,7 +26,7 @@ TOKENS = {
             't_PLUS': r'\+',
             't_MINUS': r'-',
             't_TIMES': r'\*',
-            't_DIVIDE': r'/',
+            't_DIV': r'/',
             't_ASSIGN': r'=',
             't_NUMBER': r'[0-9]*[.,]?[0-9]*\Z',
         }
@@ -36,9 +36,17 @@ class Token:
     """
     Classe para definição de token
     """
-    def __init__(self, type_, value=None):
+    def __init__(self, type_, value=None, pos_start=None, post_end=None):
         self.type = type_
         self.value = value
+
+        if pos_start:
+            self.pos_start = pos_start.copy()
+            self.pos_end = pos_start.copy()
+            self.pos_end.advance()
+
+        if post_end:
+            self.post_end = post_end.copy()
 
     def __repr__(self):
         if self.value:
