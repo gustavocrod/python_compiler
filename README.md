@@ -67,6 +67,8 @@ E possui as palavras-chave:
 Comentários são com //
 # Estrutura
 
+
+![estrutura](estrutura.png)
 O compilador (COMPLICADOR) segue tres passos que são descritos na figura acima. Primeiramente,
 se tem uma entrada, que logo é quebrada em partes -- **TOKENS** (análise léxica).
 *Tokens* são chars ou palavras definidas previamente. 
