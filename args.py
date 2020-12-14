@@ -1,6 +1,6 @@
 import argparse
-language_name = 'teste'
-command = '-i'
+language_name = 'complicador.py'
+command = '-i <inputfile>'
 
 
 def make_args():
@@ -8,11 +8,11 @@ def make_args():
     funcao que utiliza o argparse para receber arquivo de entrada
     :return: lista com os argumentos passados
     """
-    parser = argparse.ArgumentParser(description="Compilador xqdl")
+    parser = argparse.ArgumentParser(description="Complicador")
 
-    parser.add_argument("--i", "-input", action="store", help="Input file to compile.")
-    parser.add_argument("--d", "-debug", action="store_true", help="Turn on the DEBUG log.")
-    parser.add_argument("--s", "-shell", action="store_true", help="Access the shell of xqdl language.")
+    parser.add_argument("--i", "-input", action="store", help="Arquivo de entrada para compilação.")
+    parser.add_argument("--v", "-verbose", action="store_true", help="Liga o verbose log.")
+    parser.add_argument("--o", "-output", action="store", help="Nome do arquivo C de saída.", default='out.c')
 
     args = parser.parse_args()
 
@@ -20,12 +20,18 @@ def make_args():
 
 
 def print_help():
-    print(f"[HELP] usage: ${language_name} {command}<inputfile>")
+    print(f"[HELP] Uso: $complicador.py {command}")
 
 
 def print_welcome():
     print("------------------------------------------------------------------------- ")
-    print("XQDL Shell (by cr0d and AltOfControl)")
-    print("Version 0.1")
-    print("Type 'exit' to quit")
+    print("======================================================================")
+    print(" _____ ________  ________ _    _____ _____  ___ ______ ___________ ")
+    print("/  __ |  _  |  \/  | ___ | |  |_   _/  __ \/ _ \|  _  |  _  | ___ \\")
+    print("| /  \| | | | .  . | |_/ | |    | | | /  \/ /_\ | | | | | | | |_/ /")
+    print("| |   | | | | |\/| |  __/| |    | | | |   |  _  | | | | | | |    / ")
+    print("| \__/\ \_/ | |  | | |   | |____| |_| \__/| | | | |/ /\ \_/ | |\ \ ")
+    print(" \____/\___/\_|  |_\_|   \_____\___/ \____\_| |_|___/  \___/\_| \_|")
+    print("=====================================================================")
+    print("V. 0.1")
     print("------------------------------------------------------------------------- ")
