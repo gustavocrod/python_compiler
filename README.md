@@ -116,7 +116,7 @@ Já um *statement* é uma outra regra de gramática:
 ### 2.1.2 Statement:
 `statement ::= "MOSTRAAI" (expression | string) nl`
 
-A regra de estrutura aqui, é definida como uma palavra-chave PRINT, 
+A regra de estrutura aqui, é definida como uma palavra-chave MOSTRAAI, 
 seguida por uma expressão ou uma `string`, finalizando com uma quebra de linha.
 
 (Sendo string como um tipo de token definido pelo lexer)
