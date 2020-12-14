@@ -1,0 +1,12 @@
+MOSTRAAI "Quantos numeros da sequencia de fibonacci tu quer?"
+LERDOTECLADO nums
+
+ARBITRODEVIDEO a = 0
+ARBITRODEVIDEO b = 1
+ENQUANTO nums > 0 REPETE
+    MOSTRAAI a
+    ARBITRODEVIDEO c = a + b
+    ARBITRODEVIDEO a = b
+    ARBITRODEVIDEO b = c
+    ARBITRODEVIDEO nums = nums - 1
+CANSEIDEREPETIR

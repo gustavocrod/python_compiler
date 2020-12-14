@@ -17,31 +17,31 @@ class Token:
 
 class TokenType(enum.Enum):
     EOF = -1
-    NEWLINE = 0
-    NUMBER = 1
-    NAME = 2
+    NOVALINHA = 0
+    NUMERO = 1
+    NOME = 2
     STRING = 3
     # palavras-chave
-    LABEL = 101
-    GOTO = 102
-    PRINT = 103
-    INPUT = 104
-    LET = 105
-    IF = 106
-    THEN = 107
-    ENDIF = 108
-    WHILE = 109
-    REPEAT = 110
-    ENDWHILE = 111
+    PONTOTURISTICO = 101
+    VIAJAR = 102
+    MOSTRAAI = 103
+    LERDOTECLADO = 104
+    ARBITRODEVIDEO = 105
+    TESTAPOPAI = 106
+    ENTAO = 107
+    VALEUOTESTE = 108
+    ENQUANTO = 109
+    REPETE = 110
+    CANSEIDEREPETIR = 111
     # operadores
-    EQ = 201
-    PLUS = 202
-    MINUS = 203
-    ASTERISTIK = 204
-    SLASH = 205
-    EQEQ = 206
-    NOTEQ = 207
-    LESST = 208
-    LESSEQ = 209
-    GREATERT = 210
-    GREATEREQ = 211
+    IGUAL = 201
+    MAIS = 202
+    MENOS = 203
+    ASTERISCO = 204
+    BARRA = 205
+    IGUALIGUAL = 206
+    DIFERENTE = 207
+    MENOR = 208
+    MENORIGUAL = 209
+    MAIOR = 210
+    MAIORIGUAL = 211

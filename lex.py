@@ -9,6 +9,7 @@ class Lexer:
         self.curr_char = ''  # char atual na string
         self.curr_pos = -1  # posicao atual na string
         self.next_char()
+        self.curr_line = 1
 
     def next_char(self):
         """
@@ -19,6 +20,8 @@ class Lexer:
             self.curr_char = '\0'
         else:
             self.curr_char = self.source[self.curr_pos]  # proximo char
+            if self.curr_char == '\n':
+                self.curr_line += 1
 
     def peek(self):
         """
@@ -28,12 +31,11 @@ class Lexer:
             return '\0'
         return self.source[self.curr_pos + 1]
 
-    @staticmethod
-    def abort(message):
+    def abort(self, message):
         """
             Token invalido, printa uma menssagem de erro e sai
         """
-        sys.exit(f"Lexing error. {message}")
+        sys.exit(f"[BUG] Erro léxico na linha {self.curr_line}! {message}")
 
     def skip_white_space(self):
         """
@@ -53,6 +55,7 @@ class Lexer:
             if self.peek() == '/':
                 while self.curr_char != "\n":
                     self.next_char()
+                self.curr_line += 1
 
     def get_token(self):
         """
@@ -66,50 +69,50 @@ class Lexer:
 
         token = None
         if self.curr_char == '+':
-            token = Token(self.curr_char, TokenType.PLUS)
+            token = Token(self.curr_char, TokenType.MAIS)
 
         elif self.curr_char == '-':
-            token = Token(self.curr_char, TokenType.MINUS)
+            token = Token(self.curr_char, TokenType.MENOS)
 
         elif self.curr_char == '*':
-            token = Token(self.curr_char, TokenType.ASTERISTIK)
+            token = Token(self.curr_char, TokenType.ASTERISCO)
 
         # a funcao peek permite que olhemos pro proximo char sem descartar o curr
         elif self.curr_char == '=':
             if self.peek() == '=':  # um lookahead
                 last_char = self.curr_char
                 self.next_char()
-                token = Token(last_char + self.curr_char, TokenType.EQEQ)
+                token = Token(last_char + self.curr_char, TokenType.IGUALIGUAL)
             else:
-                token = Token(self.curr_char, TokenType.EQ)
+                token = Token(self.curr_char, TokenType.IGUAL)
 
         elif self.curr_char == '>':
             if self.peek() == '=':
                 last_char = self.curr_char
                 self.next_char()
-                token = Token(last_char + self.curr_char, TokenType.GREATEREQ)  # maior igual
+                token = Token(last_char + self.curr_char, TokenType.MAIORIGUAL)  # maior igual
             else:
-                token = Token(self.curr_char, TokenType.GREATERT)  # maior
+                token = Token(self.curr_char, TokenType.MAIOR)  # maior
         elif self.curr_char == '<':
             if self.peek() == '=':
                 last_char = self.curr_char
                 self.next_char()
-                token = Token(last_char + self.curr_char, TokenType.LESSEQ)  # menor igual
+                token = Token(last_char + self.curr_char, TokenType.MENORIGUAL)  # menor igual
             else:
-                token = Token(self.curr_char, TokenType.LESST)  # menor
+                token = Token(self.curr_char, TokenType.MENOR)  # menor
 
         elif self.curr_char == '!':
             if self.peek() == '=':
                 last_char = self.curr_char
                 self.next_char()
-                token = Token(last_char + self.curr_char, TokenType.NOTEQ)  # diferente
+                token = Token(last_char + self.curr_char, TokenType.DIFERENTE)  # diferente
             else:
-                self.abort(f"Expected = after !, got !{self.peek()}")  # erro
+                self.abort(f"Esperado '=' depois !, recebido !{self.peek()}")  # erro
 
         elif self.curr_char == '/':
-            token = Token(self.curr_char, TokenType.SLASH)
+            token = Token(self.curr_char, TokenType.BARRA)
         elif self.curr_char == '\n':
-            token = Token(self.curr_char, TokenType.NEWLINE)
+            token = Token(self.curr_char, TokenType.NOVALINHA)
         elif self.curr_char == '\0':
             token = Token(self.curr_char, TokenType.EOF)
 
@@ -123,7 +126,7 @@ class Lexer:
                 # nao aceita char speciais, sem chars de escape, quebra de linha tab ou %
                 if self.curr_char == '\r' or self.curr_char == '\n' or \
                         self.curr_char == '\t' or self.curr_char == '\\' or self.curr_char == '%':
-                    self.abort("Illegal character in string.")
+                    self.abort(f"Char ilegal na string: {self.curr_char}")
                 self.next_char()
             token_text = self.source[start_position: self.curr_pos]  # pega a substring marcado pelo doublequote.
             token = Token(token_text, TokenType.STRING)
@@ -141,12 +144,12 @@ class Lexer:
 
                 # precisa ter pelo menos um digito depois do ponto pra ser decimal
                 if not self.peek().isdigit():
-                    self.abort("Illegal char in numeric")
+                    self.abort(f"Char ilegal no numero: {self.curr_char}")
                 while self.peek().isdigit():
                     self.next_char()
 
             token_text = self.source[start_position: self.curr_pos + 1]  # pegando substring do numero
-            token = Token(token_text, TokenType.NUMBER)
+            token = Token(token_text, TokenType.NUMERO)
 
         #### PALAVRAS-CHAVE ####
         elif self.curr_char.isalpha():
@@ -159,11 +162,11 @@ class Lexer:
             if keyword:  # palavra chave
                 token = Token(token_text, keyword)
             else:  # entao é um id
-                token = Token(token_text, TokenType.NAME)
+                token = Token(token_text, TokenType.NOME)
 
         else:
             # Unknown token!
-            self.abort(f"Unknown token: {self.curr_char}")
+            self.abort(f"Não conheço esse token aqui: {self.curr_char}")
 
         self.next_char()
         return token

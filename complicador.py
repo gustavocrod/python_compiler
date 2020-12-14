@@ -1,4 +1,3 @@
-from lex import *
 from parse import *
 from args import *
 from emit import *

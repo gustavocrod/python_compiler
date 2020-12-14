@@ -1,4 +1,3 @@
-import sys
 from lex import *
 
 
@@ -19,6 +18,7 @@ class Parser:
 
         self.curr_token = None
         self.peek_token = None
+        self.curr_line = 1
 
         # pular dois tokens, para inicializar o atual e o proximo (peek)
         self.next()
@@ -55,36 +55,41 @@ class Parser:
             Vai para o proximo token
         """
         self.curr_token = self.peek_token
+        if self.verbose:
+            if self.curr_token:
+                if self.curr_token.text == "\n":
+                    print(f"[LEXER] (\\n, {self.curr_token.kind})")
+                else:
+                    print(f"[LEXER] ({self.curr_token.text}, {self.curr_token.kind})")
+
         self.peek_token = self.lexer.get_token()
         # o proprio lexer vai tratar o final do arquivo EOF
 
-    @staticmethod
-    def abort(message):
+    def abort(self, message):
         """
             Deu ruim, deu bug, deu cagada
         """
-        sys.exit(f"[COMPLICADOR] Deu problema: {message}")
+        sys.exit(f"[BUG] Deu ruim na linha {self.curr_line}: {message}")
 
     def print_type(self):
         """
             DEBUG print para tipo do token atual
         """
         if self.verbose:
-            print(f"[LOG] STATEMENT: {self.curr_token.text}")
+            print(f"[PARSER] STATEMENT: {self.curr_token.text}, {self.curr_token.kind}")
 
     ###### REGRAS DE GRAMATICA
     def program(self):
         """
             program ::= {statement}
         """
-        if self.verbose:
-            print("[LOG] PROGRAM")
 
         self.emitter.header_line("#include <stdio.h>")
+        self.emitter.header_line("")
         self.emitter.header_line("int main(){")
 
         # arrumar algumas quebras de linha no inicio do input
-        while self.check_token(TokenType.NEWLINE):
+        while self.check_token(TokenType.NOVALINHA):
             self.next()
 
         # Enquanto nao chegar ao fim
@@ -98,7 +103,7 @@ class Parser:
         # testar se cada label referenciado por um GOTO foi previamente declarado
         for label in self.labels_gotoed:
             if label not in self.labels_declared:
-                self.abort(f"[COMPLICADOR] Erro ao tentar usar um GOTO para {label}: Não declarado!")
+                self.abort(f"Erro ao tentar usar um GOTO para {label}: Não declarado!")
 
     def statement(self):
         """
@@ -106,78 +111,81 @@ class Parser:
         """
 
         # "PRINT" (expression | string)
-        if self.check_token(TokenType.PRINT):
+        if self.check_token(TokenType.MOSTRAAI):
             self.print_type()
             self.next()
 
             if self.check_token(TokenType.STRING):  # string para printar
+                self.print_type()
                 self.emitter.emit_line(f"printf(\"{self.curr_token.text}\\n\");")
                 self.next()
 
             else:  # uma expressao é esperada, e agora, printa o resultado como um float
+                self.print_type()
                 self.emitter.emit("printf(\"%" + ".2f\\n\", (float)(")
                 self.expression()  # isso vai dentro do print
                 self.emitter.emit_line("));")  # final do print
 
         # | "IF" comparison "THEN" nl {statement} "ENDIF"
-        elif self.check_token(TokenType.IF):
+        elif self.check_token(TokenType.TESTAPOPAI):
             self.print_type()
             self.next()
             self.emitter.emit("if(")
             self.comparison()
 
-            self.test_kind(TokenType.THEN)
+            self.test_kind(TokenType.ENTAO)
+            self.print_type()
             self.nl()
             self.emitter.emit_line("){")  # inicio do body do if
 
             # teste de zero ou mais statements no teste do if
-            while not self.check_token(TokenType.ENDIF):
+            while not self.check_token(TokenType.VALEUOTESTE):
                 self.statement()  # chamada recursiva
 
-            self.test_kind(TokenType.ENDIF)
-            self.emitter.emit_line(")}")  # final do if
+            self.test_kind(TokenType.VALEUOTESTE)
+            self.emitter.emit_line("}")  # final do if
 
         # | "WHILE" comparison "REPEAT" nl {statement} "ENDWHILE" nl
-        elif self.check_token(TokenType.WHILE):
+        elif self.check_token(TokenType.ENQUANTO):
             self.print_type()
             self.next()
             self.emitter.emit("while(")
             self.comparison()
 
-            self.test_kind(TokenType.REPEAT)
+            self.test_kind(TokenType.REPETE)
             self.nl()
             self.emitter.emit_line("){")  # inicio do body do loop
 
             # teste de zero ou mais statements no loop do WHILE
-            while not self.check_token(TokenType.ENDWHILE):
+            while not self.check_token(TokenType.CANSEIDEREPETIR):
                 self.statement()  # chamada recursiva
 
-            self.test_kind(TokenType.ENDWHILE)
-            self.emitter.emit_line(")}")  # final do while
+            self.test_kind(TokenType.CANSEIDEREPETIR)
+            self.emitter.emit_line("}")  # final do while
 
         # | "LABEL" name nl
-        elif self.check_token(TokenType.LABEL):
+        elif self.check_token(TokenType.PONTOTURISTICO):
             self.print_type()
             self.next()
 
             # testar se o label ja nao existe
             if self.curr_token.text in self.labels_declared:
-                self.abort(f"[COMPLICADOR] Label já existe: {self.curr_token.text}")
+                self.abort(f"Label já existe: {self.curr_token.text}")
             self.labels_declared.add(self.curr_token.text)
 
             self.emitter.emit_line(f"{self.curr_token.text}:")  # declaracao de um label de goto
-            self.test_kind(TokenType.NAME)
+            self.test_kind(TokenType.NOME)
 
         # | "GOTO" name nl
-        elif self.check_token(TokenType.GOTO):
+        elif self.check_token(TokenType.VIAJAR):
             self.print_type()
             self.next()
             self.labels_gotoed.add(self.curr_token.text)
             self.emitter.emit_line(f"goto {self.curr_token.text};")  # ida ate o label
-            self.test_kind(TokenType.NAME)
+            self.test_kind(TokenType.NOME)
 
         # | "LET" name "=" expression nl
-        elif self.check_token(TokenType.LET):
+        elif self.check_token(TokenType.ARBITRODEVIDEO):
             self.print_type()
             self.next()
 
@@ -188,19 +196,19 @@ class Parser:
                 self.emitter.header_line(f"float {self.curr_token.text};")
 
             self.emitter.emit(f"{self.curr_token.text} = ")
-            self.test_kind(TokenType.NAME)
-            self.test_kind(TokenType.EQ)
+            self.test_kind(TokenType.NOME)  # var
+            self.test_kind(TokenType.IGUAL)  # atribuicao
 
-            self.expression()
+            self.expression()  # expressao
             self.emitter.emit_line(";")
 
         # | "INPUT" name nl
-        elif self.check_token(TokenType.INPUT):
+        elif self.check_token(TokenType.LERDOTECLADO):
             self.print_type()
             self.next()
 
             # se a variavel ainda nao existe, declará-la
-            if self.curr_token not in self.symbol_table:
+            if self.curr_token.text not in self.symbol_table:
                 self.symbol_table.add(self.curr_token.text)
                 self.emitter.header_line(f"float {self.curr_token.text};")  # declarando a variavel
 
@@ -212,11 +220,11 @@ class Parser:
             self.emitter.emit("scanf(\"%")
             self.emitter.emit_line("*s\");")
             self.emitter.emit_line("}")
-            self.test_kind(TokenType.NAME)
+            self.test_kind(TokenType.NOME)
 
         # declaracao invalida. Erro!
         else:
-            self.abort(f"Declaração invalida em {self.curr_token.text} ({self.curr_token.kind.name})")
+            self.abort(f"Declaração invalida {self.curr_token.text} ({self.curr_token.kind.name})")
 
         # nova linha
         self.nl()
@@ -225,30 +233,33 @@ class Parser:
         """
             Retorna se o current token é um == ou > ou >= ou <= ou < ou !=
         """
-        return self.check_token(TokenType.GREATERT) \
-               or self.check_token(TokenType.GREATEREQ) \
-               or self.check_token(TokenType.LESST) \
-               or self.check_token(TokenType.LESSEQ) \
-               or self.check_token(TokenType.EQEQ) \
-               or self.check_token(TokenType.NOTEQ)
+        return self.check_token(TokenType.MAIOR) \
+               or self.check_token(TokenType.MAIORIGUAL) \
+               or self.check_token(TokenType.MENOR) \
+               or self.check_token(TokenType.MENORIGUAL) \
+               or self.check_token(TokenType.IGUALIGUAL) \
+               or self.check_token(TokenType.DIFERENTE)
 
     def comparison(self):
         """
             comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
         """
-        if self.verbose:
-            print("[LOG] COMPARISON")
 
         self.expression()
 
+        # precisa ter pelo menos um operador de comparacao e uma outra expr
         if self.is_comparison_op():
+            if self.verbose:
+                print(f"[PARSER] COMPARISON: {self.curr_token.text}")
+            self.emitter.emit(self.curr_token.text)
             self.next()
             self.expression()
         else:
-            self.abort(f"[COMPLICADOR] Esperado operador de comparacao em {self.curr_token.text}")
+            self.abort(f"Esperado operador de comparacao na linha {self.curr_line} em: {self.curr_token.text}")
 
         # pode ter 0 ou mais operadores de comparacao e expressoes
         while self.is_comparison_op():
+            self.emitter.emit(self.curr_token.text)
             self.next()
             self.expression()
 
@@ -257,11 +268,12 @@ class Parser:
             expression ::= term {( "-" | "+") term}
         """
         if self.verbose:
-            print("[LOG] EXPRESSION")
+            print(f"[PARSER] EXPRESSION: ", end=" ")
         self.term()
 
         # pode ter 0 ou mais +,- e expressoes
-        while self.check_token(TokenType.PLUS) or self.check_token(TokenType.MINUS):
+        while self.check_token(TokenType.MAIS) or self.check_token(TokenType.MENOS):
+            self.emitter.emit(self.curr_token.text)
             self.next()
             self.term()
 
@@ -269,25 +281,31 @@ class Parser:
         """
             term :== unary {( "/" | "*") unary}
         """
-        if self.verbose:
-            print("[LOG] TERM")
+
         self.unary()
 
         # pode ter 0 ou mais *,/ e expressoes
-        while self.check_token(TokenType.ASTERISTIK) or self.check_token(TokenType.SLASH):
+        while self.check_token(TokenType.ASTERISCO) or self.check_token(TokenType.BARRA):
+            if self.verbose:
+                print(f"TERM: {self.curr_token.text}")
+            self.emitter.emit(self.curr_token.text)
             self.next()
+
             self.unary()
 
     def unary(self):
         """
             unary ::= ["+" | "-"] primary
         """
-        if self.verbose:
-            print("[LOG] UNARY")
 
         # unario opcional, + ou -
-        if self.check_token(TokenType.PLUS) or self.check_token(TokenType.MINUS):
+
+        if self.check_token(TokenType.MAIS) or self.check_token(TokenType.MENOS):
+            if self.verbose:
+                print(f"UNARY: {self.curr_token.text}", end=" ")
+            self.emitter.emit(self.curr_token.text)
             self.next()
+
         self.primary()
 
     def primary(self):
@@ -297,28 +315,32 @@ class Parser:
             primary ::= number | name
         """
         if self.verbose:
-            print(f"[LOG] PRIMARY: {self.curr_token.text}")
+            print(f"PRIMARY: ({self.curr_token.text})")
 
-        if self.check_token(TokenType.NUMBER):
+        if self.check_token(TokenType.NUMERO):
+            self.emitter.emit(self.curr_token.text)
             self.next()
 
-        elif self.check_token(TokenType.NAME):
+        elif self.check_token(TokenType.NOME):
             # ter certeza que a variavel existe
             if self.curr_token.text not in self.symbol_table:
                 self.abort(f"Referenciando uma variavel antes de declará-la: {self.curr_token.text}")
+
+            self.emitter.emit(self.curr_token.text)
             self.next()
         else:
             # ERRO!
-            self.abort(f"Eita! Um token inesperado aqui: {self.curr_token.text}")
+            self.abort(f"Eita! Um token inesperado: {self.curr_token.text}")
 
     def nl(self):
         """
             nl ::= '\n'+
         """
-        if self.verbose:
-            print("[LOG] NEWLINE")
-        self.test_kind(TokenType.NEWLINE)
-
+        #if self.verbose:
+           # print("[PARSER] NEWLINE")
+        self.test_kind(TokenType.NOVALINHA)
+        self.curr_line += 1
         # Como é uma quebra de linha ou mais, fica em loop
-        while self.check_token(TokenType.NEWLINE):
+        while self.check_token(TokenType.NOVALINHA):
+            self.curr_line += 1
             self.next()

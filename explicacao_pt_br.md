@@ -1,18 +1,102 @@
+# Quê qué isso?
+Um "compilador" escrito em python3, pra uma linguagem duvidosa. Abaixo tem mais detalhes sobre ela,
+mas a ideia aqui foi centrar-se nos conceitos que envolvem o dedsenvolvimento de um compilador.
+
+# Execucao:
+Pode-se chamar o compilador diretamente
+```
+$ python3 complicador/complicador.py -i <arquivo_entrada.cmp> -o <arquivo_saida.c>
+```
+E entao, posteriormente compilar o código C (intermediário) gerado:
+
+```
+$ gcc -o programa codigo.c
+$ ./programa
+```
+
+**Ou executar direto com o `complicar.sh`**:
+
+```
+$ bash complicar.sh <arquivo_entrada.cmp>
+```
+
+Após isso, é só executar o executavel:
+```
+$ ./arquivo_entrada
+```
+
+Exemplo:
+
+*existem alguns exemplos na pasta 'exemplos'*
+```
+$ bash complicar.sh exemplos/fibonacci.cmp
+$ ./fibonacci
+```
+
+ou
+
+```
+$ bash complicar.sh exemplos/average.cmp
+$ ./average
+```
+
+---
+# A linguagem
+Nossa linguagem é super simples, e compreende apenas operações básicas de uma *programming language*:
+- Variáveis numéricas (apenas float)
+- Aritmética básica (+, -, /, *)
+- Laço while
+- Print de *strings* e números
+- Input de números
+- Labels e Goto
+- Comentários
+
+E possui as palavras-chave:
+- PONTOTURISTICO = label
+- VIAJAR = goto 
+- MOSTRAAI = print
+- LERDOTECLADO = scan
+- ARBITRODEVIDEO = var
+- TESTAPOPAI = if
+- ENTAO = then
+- VALEUOTESTE = endif
+- ENQUANTO = while
+- REPETE = repeat
+- CANSEIDEREPETIR = endwhile
+
+Comentários são com //
+# Estrutura
+
+O compilador (COMPLICADOR) segue tres passos que são descritos na figura acima. Primeiramente,
+se tem uma entrada, que logo é quebrada em partes -- **TOKENS** (análise léxica).
+*Tokens* são chars ou palavras definidas previamente. 
+Logo, é feito um **PARSE** (análise sintática/semântica) dos tokens para entender se eles seguem
+a ordem definida pela nossa linguagem (gramática). Por ultimo, é **EMITIDO** um
+código C que corresponde à tradução da linguagem.
+
 # 1. O lexer
+Dado uma string, esse carinha deve iterar char por char e fazer duas coisas:
+- Decidir onde cada *token* começa e termina
+- E definir que tipo de *token* ele é
+
+se o lexer não conseguir fazer isso, deve emitir um erro.
 
 # 2. O Parser
+O *parsers* é o carinha que vai garantir que o código segue a sintaxe correta.
+Ele faz isso olhando percorrendo os tokens, e vai vendo se a ordem esta certa pelo
+que foi definido pela **gramatica da linguagem**.
 
 ## 2.1 A gramatica da linguagem:
 
 ```
 program ::= {statement}
-statement ::= "PRINT" (expression | string) nl
-    | "IF" comparison "THEN" nl {statement} "ENDIF" nl
-    | "WHILE" comparison "REPEAT" nl {statement} "ENDWHILE" nl
-    | "LABEL" name nl
-    | "GOTO" name nl
-    | "LET" name "=" expression nl
-    | "INPUT" name nl
+statement ::= "MOSTRAAI" (expression | string) nl
+    | "TESTAPOPAI" comparison "ENTAO" nl {statement} "VALEUOTESTE" nl
+    | "ENQUANTO" comparison "REPETE" nl {statement} "CANSEIDEREPETIR" nl
+    | "PONTOTURISTICO" name nl
+    | "VIAJAR" name nl
+    | "ARBITRODEVIDEO" name "=" expression nl
+    | "LERDOTECLADO" name nl
 comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
 expression ::= term {( "-" | "+" ) term}
 term ::= unary {( "/" | "*" ) unary}
@@ -28,9 +112,9 @@ Um programa (program) é feito por uma ou mais declarações (statement)
 
 Já um *statement* é uma outra regra de gramática:
 ### 2.1.2 Statement:
-`statement ::= "PRINT" (expression | string) nl`
+`statement ::= "MOSTRAAI" (expression | string) nl`
 
-A regra de declaração aqui, é definida como uma palavra-chave PRINT, 
+A regra de estrutura aqui, é definida como uma palavra-chave PRINT, 
 seguida por uma expressão ou uma `string`, finalizando com uma quebra de linha.
 
 (Sendo string como um tipo de token definido pelo lexer)
@@ -38,12 +122,12 @@ seguida por uma expressão ou uma `string`, finalizando com uma quebra de linha.
 Pode-se adicionar novas regras na declaração:
 
 ```
-statement ::= "PRINT" (expression | string) nl
-    | "LET" ident "=" expression nl
-    | "IF" comparison "THEN" nl {statement} "ENDIF" nl
+statement ::= "MOSTRAAI" (expression | string) nl
+    | "TESTAPOPAI" comparison "ENTAO" nl {statement} "VALEUOTESTE" nl
+    | "ENQUANTO" comparison "REPETE" nl {statement} "CANSEIDEREPETIR" nl
 ```
 
-Agora, a regra do *statement* tem três opções: um PRINT, um LET ou um IF. Uma declaração de LET, 
+Agora, a regra do *statement* tem três opções: um PRINT, um LET ou um IF. Uma estrutura LET, 
 significa a atribuição de um valor a uma variavel; A definição é a palavra-chave LET seguida por
 um name e um "=" finalizando com uma *expression* e uma quebra de linha. `name` é um tipo de token
 definido no lexer, que é o identificador da variávele; e expression é uma outra regra gramatical.
@@ -69,7 +153,7 @@ comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
 expression ::= term {( "-" | "+" ) term}
 term ::= unary {( "/" | "*" ) unary}
 unary ::= ["+" | "-"] primary
-primary ::= number | ident
+primary ::= number | name
 ```
 
 
@@ -104,3 +188,6 @@ Em cada função do *parser*, será chamado o emitter para produzir o código C 
 O *emitter* nesse caso, irá concatenar um monte de strings, conforme desce na 
 árvore analítica. Para cada regra gramatical, deve-se descobrir o que seria o equivalente
 em C.
+
+---
+full baseado no [teenytiny](https://github.com/AZHenley/teenytinycompiler)
