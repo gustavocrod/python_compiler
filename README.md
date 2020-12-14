@@ -5,7 +5,7 @@ mas a ideia aqui foi centrar-se nos conceitos que envolvem o dedsenvolvimento de
 # Execucao:
 Pode-se chamar o compilador diretamente
 ```
-$ python3 complicador/complicador.py -i <arquivo_entrada.cmp> -o <arquivo_saida.c>
+$ python3 complicador.py -i <arquivo_entrada.cmp> -o <arquivo_saida.c>
 ```
 E entao, posteriormente compilar o código C (intermediário) gerado:
 
