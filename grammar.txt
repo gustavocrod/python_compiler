@@ -1,7 +1,14 @@
-expr    : term ((PLUS|MINUS) term)*
-
-term    : factor (TIMES|DIV) factor)*
-
-factor  : INT|FLOAT
-        : (PLUS|MINUS) factor
-        : LPAREN expr RPAREN
+program ::= {statement}
+statement ::= "PRINT" (expression | string) nl
+    | "IF" comparison "THEN" nl {statement} "ENDIF" nl
+    | "WHILE" comparison "REPEAT" nl {statement} "ENDWHILE" nl
+    | "LABEL" name nl
+    | "GOTO" name nl
+    | "LET" name "=" expression nl
+    | "INPUT" name nl
+comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
+expression ::= term {( "-" | "+" ) term}
+term ::= unary {( "/" | "*" ) unary}
+unary ::= ["+" | "-"] primary
+primary ::= number | name
+nl ::= '\n'+ 
